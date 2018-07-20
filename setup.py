@@ -2,7 +2,7 @@ from distutils.core import setup
 import sigma_koki
 
 setup(name='PySigmaKoki',
-      version='1.0.0',
+      version='2.0.0',
       description='Python Interface for Instruments by Sigma Koki',
       author='Akira Okumura',
       author_email='oxon@mac.com',
