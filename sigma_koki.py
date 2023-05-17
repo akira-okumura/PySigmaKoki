@@ -281,7 +281,7 @@ class GSC02(BaseStageController):
         else:
             self.write('D:1S%dF%dR%dS%dF%dR%d' % (minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2))
 
-class SCHOT702(BaseStageController):
+class SHOT702(BaseStageController):
     """
     Stage controller SHOT-702
     """
