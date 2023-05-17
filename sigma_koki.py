@@ -31,7 +31,7 @@ class BaseStageController(object):
         else:
             raise ValueError('Attempting to set an invalid buard rate %d to %s. Must be chosen from 2400/4800/9600/19200 for GSC-02 and 38400 for SHOT-702.' % (rate, self.__product))
 
-    def disableAcknowledge():
+    def disableAcknowledge(self):
         self.__acknowledge = False
 
     def write(self, command, acknowledge=True):
@@ -55,10 +55,10 @@ class BaseStageController(object):
     def readline(self):
         # convert 'bytes' to 'str'
         result = str(self.serial.readline())
-        if result[-2:] == '\r\n':
-            result = result[:-2] # drop delimeter
-        if result[:2] == "b'":
-            result = result[2:] # drop byte code prefix
+        if result[:2] == "b'" and result[-1:] == "'":
+            result = result[2:-1] # drop byte code prefix and suffix
+        if result[-4:] == '\\r\\n':
+            result = result[:-4] # drop delimeter
 
         return result
 
