@@ -39,7 +39,7 @@ class BaseStageController(object):
         # e.g., 'command' -> b'command'
         self.serial.write((command + '\r\n').encode())
 
-        if not self.__acknowledge:
+        if not self.__acknowledge or not acknowledge:
             return
         
         ack = self.readline()
