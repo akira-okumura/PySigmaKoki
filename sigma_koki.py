@@ -24,12 +24,13 @@ class BaseStageController(object):
         self.__acknowledge =  True
 
     def setBaudRate(self, rate):
-        if product == 'GSC-02' and rate in (2400, 4800, 9600, 19200):
-            self.__baudRate = rate
-        elif product == 'SHOT-702' and rate == 38400:
+        rates = {'GSC-02': (2400, 4800, 9600, 19200),
+                 'SHOT-702' : (38400,),
+                 'SHOT-702H' : (38400,)}
+        if rate in rates[self.__product]:
             self.__baudRate = rate
         else:
-            raise ValueError('Attempting to set an invalid buard rate %d to %s. Must be chosen from 2400/4800/9600/19200 for GSC-02 and 38400 for SHOT-702.' % (rate, self.__product))
+            raise ValueError('Attempting to set an invalid buard rate of %d to %s. The rate must be chosen from %s.' % (rate, self.__product, rates[self.__product]))
 
     def disableAcknowledge(self):
         self.__acknowledge = False
