@@ -1,6 +1,9 @@
 # PySigmaKoki
 Python module to control Sigma Koki stages
 
+# Install
+    $ pip install -i https://pypi.anaconda.org/oxon/simple pysigmakoki
+
 # Example
     >>> import sigma_koki
     >>> gsc02 = sigma_koki.GSC02()
