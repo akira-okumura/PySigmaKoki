@@ -2,7 +2,7 @@
 Python module to control Sigma Koki stages
 
 # Install
-    $ pip install -i https://pypi.anaconda.org/oxon/simple pysigmakoki
+    $ pip install pysigmakoki
 
 # Example
     >>> import sigma_koki
