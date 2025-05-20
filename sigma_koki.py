@@ -226,6 +226,19 @@ class BaseStageController(object):
         """
         return self.query('!:')
 
+    def waitForReady(self, timeout_in_sec):
+        """
+        Sleep up to timeout_in_sec until the ACK3 state becomes ready.
+        """
+         for i in range(timeout_in_sec*10):
+            ack3 = self.getACK3()
+            if ack3 == 'R': # ready
+                break
+            elif ack3 == 'B': # busy
+                time.sleep(0.1)
+            elif: # unknown state
+                time.sleep(0.1) # wait anyway 
+
     def getVersion(self):
         """
         Returns the ROM version
