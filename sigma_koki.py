@@ -236,7 +236,7 @@ class BaseStageController(object):
                 break
             elif ack3 == 'B': # busy
                 time.sleep(0.1)
-            elif: # unknown state
+            else: # unknown state
                 time.sleep(0.1) # wait anyway 
 
     def getVersion(self):
