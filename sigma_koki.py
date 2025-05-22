@@ -230,7 +230,7 @@ class BaseStageController(object):
         """
         Sleep up to timeout_in_sec until the ACK3 state becomes ready.
         """
-         for i in range(timeout_in_sec*10):
+        for i in range(timeout_in_sec*10):
             ack3 = self.getACK3()
             if ack3 == 'R': # ready
                 break
