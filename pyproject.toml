@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PySigmaKoki"
-version = "2.1.6"
+version = "2.1.7"
 description = "Python Interface for Instruments by Sigma Koki"
 authors = [
     { name = "Akira Okumura", email = "oxon@mac.com" }

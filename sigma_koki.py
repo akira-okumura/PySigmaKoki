@@ -8,7 +8,7 @@ try:
 except:
     pass
 import serial
-import sys
+import time
 
 class BaseStageController(object):
     """
