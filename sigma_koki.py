@@ -110,9 +110,18 @@ class BaseStageController(object):
             else:
                 return
 
-    def move(self, stage1, stage2):
+    def move(self, stage1_pulses, stage2_pulses):
+        self.move_relative(stage1_pulses, stage2_pulses)
+
+    def move_relative(self, stage1_pulses, stage2_pulses):
+        self.move_common(stage1_pulses, stage2_pulses, True)
+
+    def move_absolute(self, stage1_pulses, stage2_pulses):
+        self.move_common(stage1_pulses, stage2_pulses, False)
+
+    def move_common(self, stage1_pulses, stage2_pulses, relative:bool = True):
         """
-        Moves the stages with the specified values. Since GSC-02 is a half-step
+        Moves the stages by the specified values. Since GSC-02 is a half-step
         stepping driver, 1 pulse corresponds to "half-step movement" in the
         stage catalogues.
         """
@@ -121,22 +130,26 @@ class BaseStageController(object):
         elif self.__product == 'SHOT-702':
             limit = 268435455
 
-        if not (-limit <= stage1 <= limit):
+        if not (-limit <= stage1_pulses <= limit):
             raise ValueError('stage1 must be between -%d and %d.' % (limit, limit))
 
-        if not (-limit <= stage2 <= limit):
+        if not (-limit <= stage2_pulses <= limit):
             raise ValueError('stage2 must be between -%d and %d.' % (limit, limit))
 
-        command = 'M:W'
-        if stage1 >= 0:
-            command += '+P%d' % stage1
+        if relative
+            command = 'M:W' # relative
         else:
-            command += '-P%d' % -stage1
+            command = 'A:W' # absolute
 
-        if stage2 >= 0:
-            command += '+P%d' % stage2
+        if stage1_pulses >= 0:
+            command += '+P%d' % stage1_pulses
         else:
-            command += '-P%d' % -stage2
+            command += '-P%d' % -stage1_pulses
+
+        if stage2_pulses >= 0:
+            command += '+P%d' % stage2_pulses
+        else:
+            command += '-P%d' % -stage2_pulses
 
         self.write(command)
         self.go()
@@ -325,4 +338,3 @@ class SHOT702(BaseStageController):
         self.write('D:WS%dF%dR%dS%dF%dR%d' % (minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2))
 
     # Some query commands, ?:P, ?:S, ?:D, and ?:B, are not implemented yet
-    
