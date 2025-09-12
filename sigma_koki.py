@@ -136,7 +136,7 @@ class BaseStageController(object):
         if not (-limit <= stage2_pulses <= limit):
             raise ValueError('stage2 must be between -%d and %d.' % (limit, limit))
 
-        if relative
+        if relative:
             command = 'M:W' # relative
         else:
             command = 'A:W' # absolute
