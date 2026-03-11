@@ -25,6 +25,7 @@ class BaseStageController(object):
 
     def setBaudRate(self, rate):
         rates = {'GSC-02': (2400, 4800, 9600, 19200),
+                 'SHOT-102': (4800, 9600, 19200, 38400),
                  'SHOT-702' : (38400,),
                  'SHOT-702H' : (38400,)}
         if rate in rates[self.__product]:
@@ -109,6 +110,21 @@ class BaseStageController(object):
                 self.write('H:2')
             else:
                 return
+        elif self.__product == 'SHOT-102':
+            if stage1 == '+' and stage2 == '+':
+                self.write('H:W+')
+            elif stage1 == '-' and stage2 == '-':
+                self.write('H:W-')
+            elif stage1 == '+':
+                self.write('H:1+')
+            elif stage1 == '-':
+                self.write('H:1-')
+            elif stage2 == '+':
+                self.write('H:2+')
+            elif stage2 == '-':
+                self.write('H:2-')
+            else:
+                return
 
     def move(self, stage1_pulses, stage2_pulses):
         self.move_relative(stage1_pulses, stage2_pulses)
@@ -126,6 +142,8 @@ class BaseStageController(object):
         stage catalogues.
         """
         if self.__product == 'GSC-02':
+            limit = 16777214
+        elif self.__product == 'SHOT-102':
             limit = 16777214
         elif self.__product == 'SHOT-702':
             limit = 268435455
@@ -186,7 +204,10 @@ class BaseStageController(object):
         """
         Moves the stages. To be used internally.
         """
-        self.write('G')
+        if self.__product == 'SHOT-102':
+            self.write('G:') # In the MINI-5P mode, 'G' is used, but we do not support MINI-5P
+        else:
+            self.write('G')
 
     def decelerate(self, stage1, stage2):
         """
@@ -209,13 +230,35 @@ class BaseStageController(object):
         """
         Sets the origin to the current position.
         stage1: If true, set the origin of the stage 1 to the current position
-        stage2: If true, set the origin of the stage 1 to the current position
+        stage2: If true, set the origin of the stage 2 to the current position
         """
-        if stage1:
+        if stage1 and stage2:
+            self.write('R:W')
+        elif stage1:
             self.write('R:1')
-
-        if stage2:
+        elif stage2:
             self.write('R:2')
+
+    def _setSpeed_SHOT702(self, minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2):
+        """
+        Sets the movement speeds of the stages
+        minSpeed1/2: Minimum speed (PPS)
+        maxSpeed1/2: Maximum speed (PPS)
+        accelerationTime1/2: Acceleration time to be taken from min to max (ms)
+        """
+        if not (1 <= minSpeed1 <= maxSpeed1 <= 500000):
+            raise ValueError('Must be 1 <= minSpeed1 <= maxSpeed1 <= 500000.')
+
+        if not (1 <= minSpeed2 <= maxSpeed2 <= 500000):
+            raise ValueError('Must be 1 <= minSpeed2 <= maxSpeed2 <= 500000.')
+
+        if not (0 <= accelerationTime1 <= 1000):
+            raise ValueError('Must be 0 <= accelerationTime <= 1000.')
+
+        if not (0 <= accelerationTime2 <= 1000):
+            raise ValueError('Must be 0 <= accelerationTime <= 1000.')
+
+        self.write('D:WS%dF%dR%dS%dF%dR%d' % (minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2))
 
     def enableMotorExcitation(self, stage1 = True, stage2 = False):
         """
@@ -308,6 +351,20 @@ class GSC02(BaseStageController):
         else:
             self.write('D:1S%dF%dR%dS%dF%dR%d' % (minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2))
 
+        def move_absolute(self, stage1_pulses, stage2_pulses):
+            raise NotImplementedError('GSC-02 does not support the "A" command.')
+
+class SHOT102(BaseStageController):
+    """
+    Stage controller SHOT-102
+    """
+    def __init__(self):
+        # 9600 bps the initial factory setting
+        BaseStageController.__init__(self, 9600, 'SHOT-102')
+
+    def setSpeed(self, minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2):
+        BaseStageController._setSpeed_SHOT702(self, minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2)
+
 class SHOT702(BaseStageController):
     """
     Stage controller SHOT-702
@@ -317,24 +374,6 @@ class SHOT702(BaseStageController):
         BaseStageController.__init__(self, 38400, 'SHOT-702')
 
     def setSpeed(self, minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2):
-        """
-        Sets the movement speeds of the stages
-        minSpeed1/2: Minimum speed (PPS)
-        maxSpeed1/2: Maximum speed (PPS)
-        accelerationTime1/2: Acceleration time to be taken from min to max (ms)     
-        """
-        if not (1 <= minSpeed1 <= maxSpeed1 <= 500000):
-            raise ValueError('Must be 1 <= minSpeed1 <= maxSpeed1 <= 500000.')
-
-        if not (1 <= minSpeed2 <= maxSpeed2 <= 500000):
-            raise ValueError('Must be 1 <= minSpeed2 <= maxSpeed2 <= 500000.')
-
-        if not (0 <= accelerationTime1 <= 1000):
-            raise ValueError('Must be 0 <= accelerationTime <= 1000.')
-
-        if not (0 <= accelerationTime2 <= 1000):
-            raise ValueError('Must be 0 <= accelerationTime <= 1000.')
-
-        self.write('D:WS%dF%dR%dS%dF%dR%d' % (minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2))
+        BaseStageController._setSpeed_SHOT702(self, minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2)
 
     # Some query commands, ?:P, ?:S, ?:D, and ?:B, are not implemented yet
