@@ -141,11 +141,9 @@ class BaseStageController(object):
         stepping driver, 1 pulse corresponds to "half-step movement" in the
         stage catalogues.
         """
-        if self.__product == 'GSC-02':
+        if self.__product in ('GSC-02', 'SHOT-102'):
             limit = 16777214
-        elif self.__product == 'SHOT-102':
-            limit = 16777214
-        elif self.__product == 'SHOT-702':
+        elif self.__product in ('SHOT-702', 'SHOT-702H'):
             limit = 268435455
 
         if not (-limit <= stage1_pulses <= limit):
@@ -370,10 +368,18 @@ class SHOT702(BaseStageController):
     Stage controller SHOT-702
     """
     def __init__(self):
-        # 9600 bps the initial factory setting
+        # 38400 bps the fixed value
         BaseStageController.__init__(self, 38400, 'SHOT-702')
 
     def setSpeed(self, minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2):
         BaseStageController._setSpeed_SHOT702(self, minSpeed1, maxSpeed1, accelerationTime1, minSpeed2, maxSpeed2, accelerationTime2)
 
     # Some query commands, ?:P, ?:S, ?:D, and ?:B, are not implemented yet
+
+class SHOT702H(SHOT702):
+    """
+    Stage controller SHOT-702H
+    """
+    def __init__(self):
+        # 38400 bps the fixed value
+        BaseStageController.__init__(self, 38400, 'SHOT-702H')
