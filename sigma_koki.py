@@ -101,7 +101,7 @@ class BaseStageController(object):
                 self.write('H:2-')
             else:
                 return
-        elif self.__product == 'SHOT-702':
+        elif self.__product in ('SHOT-702', 'SHOT-702H'):
             if stage1 == True and stage2 == True:
                 self.write('H:W')
             elif stage1 == True:
