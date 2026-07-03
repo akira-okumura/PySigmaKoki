@@ -310,7 +310,7 @@ class GSC02(BaseStageController):
 
     def setSpeed(self, highspeed, minSpeed1, maxSpeed1, accelerationTime1,
                  minSpeed2, maxSpeed2, accelerationTime2):
-        """
+        r'''
         Sets the movement speeds of the stages
         highspeed: If true, speed range is 50-20000, else 1-200
         minSpeed1/2: Minimum speed (PPS)
@@ -326,7 +326,7 @@ class GSC02(BaseStageController):
         |__|______________|________
            <->              acceleration time (ms)
                         <-> deceleration time (ms)
-        """
+        '''
         if not highspeed:
             if not (1 <= minSpeed1 <= maxSpeed1 <= 200):
                 raise ValueError('Must be 1 <= minSpeed1 <= maxSpeed1 <= 200 in low speed range.')
